@@ -23,3 +23,28 @@ def classify0(inX, dataSet, labels, k): #四个参数变量，inX表示用于分
         classCount[voteIlabel] = classCount.get(voteIlabel,0) + 1 #存入labels和相应键值为0，之后更新此labels的键值
     sortedClassCount = sorted(classCount.items(), key=operator.itemgetter(1), reverse=True)#使用classCount的value值进行从大到小排序
     return sortedClassCount[0][0] #返回分类结果
+
+def file2matrix(filename):#处理文件数据常用手段
+    fr = open(filename)
+    numberOfLines = len(fr.readlines())     
+    returnMat = zeros((numberOfLines,3))        
+    classLabelVector = []                       
+    fr = open(filename)
+    index = 0
+    for line in fr.readlines(): #按行处理文件
+        line = line.strip()
+        listFromLine = line.split('\t')
+        returnMat[index,:] = listFromLine[0:3] #将数据列抽取出
+        classLabelVector.append(int(listFromLine[-1])) #将标签列抽取出
+        index += 1
+    return returnMat,classLabelVector #返回整理后的数据矩阵和标签向量
+
+def autoNorm(dataSet):#归一化数据集，使得数据集的特征占比规整
+    minVals = dataSet.min(0)
+    maxVals = dataSet.max(0)
+    ranges = maxVals - minVals
+    normDataSet = zeros(shape(dataSet))
+    m = dataSet.shape[0]#得到daaSet的行数
+    normDataSet = dataSet - tile(minVals,(m,1))#扩展minVals，使它变成和daaset一样的行度
+    normDataSet = normDataSet/tile(ranges,(m,1))
+    return normDataSet,ranges,minVals
